@@ -9,7 +9,7 @@ import torch.nn as nn
 import torchvision.transforms.functional as TF
 from loguru import logger
 from tqdm import tqdm
-from function import get_instance,dir_exists,get_metrics,AverageMeter
+from .utils import get_instance,dir_exists,get_metrics,AverageMeter
 
 
 class Trainer:
@@ -41,11 +41,8 @@ class Trainer:
 
     def _train_epoch(self, epoch):
         self.model.train()
-        wrt_mode = 'train'
         self._reset_metrics()
-        tic = time.time()
         for img, gt in self.train_loader:
-            self.data_time.update(time.time() - tic)
             img = img.cuda(non_blocking=True)
             gt = gt.cuda(non_blocking=True)
             self.optimizer.zero_grad()
@@ -58,20 +55,18 @@ class Trainer:
             self.scaler.update()
            
             self.total_loss.update(loss.item())
-            self.batch_time.update(time.time() - tic)
             
             self._metrics_update(
                 *get_metrics(pre, gt, threshold=self.CFG.threshold).values())
             print(
-                'TRAIN ({}) | Loss: {:.4f} | AUC {:.4f} F1 {:.4f} Acc {:.4f}  Sen {:.4f} Spe {:.4f} Pre {:.4f} IOU {:.4f} |B {:.2f} D {:.2f} |'.format(
-                    epoch, self.total_loss.average, *self._metrics_ave().values(), self.batch_time.average, self.data_time.average))
-            tic = time.time()
+                'TRAIN ({}) | Loss: {:.4f} | AUC {:.4f} F1 {:.4f} Acc {:.4f}  Sen {:.4f} Spe {:.4f} Pre {:.4f} IOU {:.4f}  |'.format(
+                    epoch, self.total_loss.average, *self._metrics_ave().values()))
+            
         self.lr_scheduler.step()
 
     def _valid_epoch(self, epoch):
         logger.info('\n###### EVALUATION ######')
         self.model.eval()
-        wrt_mode = 'val'
         self._reset_metrics()
         tbar = tqdm(self.val_loader, ncols=160)
         with torch.no_grad():
