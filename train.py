@@ -6,8 +6,7 @@ from torch.utils.data import DataLoader
 import models
 from dataset import vessel_dataset
 from trainer import Trainer
-from utils import losses
-from utils.helpers import get_instance, seed_torch
+from utils import losses,get_instance, seed_torch
 
 
 def main(CFG, data_path, batch_size, with_val=False):

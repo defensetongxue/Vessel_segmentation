@@ -3,7 +3,7 @@ import pickle
 import torch
 from torch.utils.data import Dataset
 from torchvision.transforms import Compose, RandomHorizontalFlip, RandomVerticalFlip
-from utils.helpers import Fix_RandomRotation
+from utils import Fix_RandomRotation
 
 
 class vessel_dataset(Dataset):
