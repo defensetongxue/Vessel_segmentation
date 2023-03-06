@@ -15,10 +15,10 @@ from .utils import get_instance,dir_exists,get_metrics,AverageMeter
 class Trainer:
     def __init__(self, model, CFG=None, loss=None, train_loader=None, val_loader=None):
         self.CFG = CFG
-        if self.CFG.amp is True:
-            self.scaler = torch.cuda.amp.GradScaler(enabled=True)
+        self.scaler = torch.cuda.amp.GradScaler(enabled=True)
         self.loss = loss
-        self.model = nn.DataParallel(model.cuda())
+        # self.model = nn.DataParallel(model.cuda())
+        self.model=model.cuda()
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.optimizer = get_instance(
@@ -31,7 +31,7 @@ class Trainer:
         dir_exists(self.checkpoint_dir)
         cudnn.benchmark = True
 
-    def train(self):
+    def train(self,train_loader,val_loader=None):
         for epoch in range(1, self.CFG.epochs + 1):
             self._train_epoch(epoch)
             if self.val_loader is not None :
@@ -42,6 +42,7 @@ class Trainer:
     def _train_epoch(self, epoch):
         self.model.train()
         self._reset_metrics()
+        cnt=0
         for img, gt in self.train_loader:
             img = img.cuda(non_blocking=True)
             gt = gt.cuda(non_blocking=True)
@@ -61,7 +62,9 @@ class Trainer:
             print(
                 'TRAIN ({}) | Loss: {:.4f} | AUC {:.4f} F1 {:.4f} Acc {:.4f}  Sen {:.4f} Spe {:.4f} Pre {:.4f} IOU {:.4f}  |'.format(
                     epoch, self.total_loss.average, *self._metrics_ave().values()))
-            
+            cnt=cnt+1
+            if cnt>=2:
+                raise
         self.lr_scheduler.step()
 
     def _valid_epoch(self, epoch):
@@ -82,6 +85,7 @@ class Trainer:
                 tbar.set_description(
                     'EVAL ({})  | Loss: {:.4f} | AUC {:.4f} F1 {:.4f} Acc {:.4f} Sen {:.4f} Spe {:.4f} Pre {:.4f} IOU {:.4f} |'.format(
                         epoch, self.total_loss.average, *self._metrics_ave().values()))
+            
                 
         log = {
             'val_loss': self.total_loss.average,

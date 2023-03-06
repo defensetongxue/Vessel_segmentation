@@ -27,6 +27,5 @@ tensorboard: true
 threshold: 0.5
 threshold_low: 0.3
 DTI: false
-amp: true
 tta: false
 CCC: false
