@@ -47,6 +47,6 @@ if __name__ == '__main__':
                         required=False, default=False, action="store_true")
     args = parser.parse_args()
 
-    with open('config.yaml', encoding='utf-8') as file:
+    with open('default.yaml', encoding='utf-8') as file:
         CFG = Bunch(safe_load(file))
     main(CFG, args.dataset_path, args.batch_size, args.val)
