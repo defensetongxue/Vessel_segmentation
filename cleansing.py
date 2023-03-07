@@ -176,14 +176,14 @@ def save_patch(imgs_list, path, type, name):
     for i, sub in enumerate(imgs_list):
         with open(file=os.path.join(path, f'{type}_{i}.pkl'), mode='wb') as file:
             pickle.dump(np.array(sub), file)
-            print(f'save {name} {type} : {type}_{i}.pkl')
+            # print(f'save {name} {type} : {type}_{i}.pkl')
 
 
 def save_each_image(imgs_list, path, type, name):
     for i, sub in enumerate(imgs_list):
         with open(file=os.path.join(path, f'{type}_{i}.pkl'), mode='wb') as file:
             pickle.dump(np.array(sub), file)
-            print(f'save {name} {type} : {type}_{i}.pkl')
+            # print(f'save {name} {type} : {type}_{i}.pkl')
 
 
 def normalization(imgs_list):
@@ -200,16 +200,16 @@ def normalization(imgs_list):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-dp', '--dataset_path', default="datasets/DRIVE", type=str,
-                        help='the path of dataset',required=True)
-    parser.add_argument('-dn', '--dataset_name', default="DRIVE", type=str,
-                        help='the name of dataset',choices=['DRIVE','CHASEDB1','STARE','CHUAC','DCA1'],required=True)
-    parser.add_argument('-ps', '--patch_size', default=48,
+    parser.add_argument('--dataset_path', default="datasets/DRIVE", type=str,
+                        help='the path of dataset')
+    parser.add_argument( '--dataset_name', default="DRIVE", type=str,
+                        help='the name of dataset',choices=['DRIVE','CHASEDB1','STARE','CHUAC','DCA1'])
+    parser.add_argument( '--patch_size', default=48,
                         help='the size of patch for image partition')
-    parser.add_argument('-s', '--stride', default=6,
+    parser.add_argument('--stride', default=6,
                         help='the stride of image partition')
     args = parser.parse_args()
-    with open('config.yaml', encoding='utf-8') as file:
+    with open('default.yaml', encoding='utf-8') as file:
         CFG = safe_load(file)  # 为列表类型
 
     data_process(args.dataset_path, args.dataset_name,

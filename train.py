@@ -36,10 +36,9 @@ def main(CFG, dataset, batch_size):
     trainer = Trainer(
         model=model,
         loss=loss,
-        CFG=CFG,
-        train_loader=train_loader
+        CFG=CFG
     )
-    trainer.train()
+    trainer.train(train_loader)
 
 
 if __name__ == '__main__':

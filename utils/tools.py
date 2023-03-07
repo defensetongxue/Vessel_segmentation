@@ -114,7 +114,7 @@ class Fix_RandomRotation(object):
 
     def __call__(self, img):
         angle = self.get_params()
-        return F.rotate(img, angle, self.resample, self.expand, self.center)
+        return F.rotate(img, angle, F.InterpolationMode.NEAREST , self.expand, self.center)
 
     def __repr__(self):
         format_string = self.__class__.__name__ + \
