@@ -44,9 +44,9 @@ def main(CFG, dataset, batch_size):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-dataset', "DRIVE", type=str,
+    parser.add_argument('--dataset', default="DRIVE", type=str,
                         help='dataset used, if dataset==all, we will used all of the dataset')
-    parser.add_argument('-bs', '--batch_size', default=64,
+    parser.add_argument( '--batch_size', default=64,
                         help='batch_size for trianing and validation')
     args = parser.parse_args()
     # there is totally 5 data DRIVE CHASEDB1 CHUAC DCA1 STAGE

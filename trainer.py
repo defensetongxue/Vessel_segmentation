@@ -2,7 +2,7 @@ import os
 import torch
 import torch.backends.cudnn as cudnn
 from loguru import logger
-from .utils import get_instance,dir_exists,get_metrics,AverageMeter
+from utils import get_instance,dir_exists,get_metrics,AverageMeter
 
 
 class Trainer:
