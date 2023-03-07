@@ -16,20 +16,20 @@ def train(CFG, dataset, batch_size):
     #generare data 
     train_dataset=None
     if dataset=='all':
-        all_dataset=['DRIVE', 'CHASEDB1' ,'CHUAC', 'DCA1', 'STAGE']
+        all_dataset=['DRIVE', 'CHASEDB1' ,'CHUAC', 'DCA1', 'STARE']
         for name in all_dataset:
-            data_path=os.path.join('./datasets',name)
+            data_path=os.path.join('../autodl-tmp/datasets_vessel',name)
             if train_dataset is None:
                 train_dataset = vessel_dataset(data_path, mode="training")
             else:
                 train_dataset=train_dataset+vessel_dataset(data_path, mode="training")
     else:
-        data_path=os.path.join('./datasets',dataset)
+        data_path=os.path.join('../autodl-tmp/datasets_vessel',dataset)
         train_dataset = vessel_dataset(data_path, mode="training")
     # generate data loader
     train_loader = DataLoader(
         train_dataset, batch_size, shuffle=True, num_workers=16, pin_memory=True, drop_last=True)
-    print("generate dataloader finish there is {} of size {}".format(len(train_loader,batch_size)))
+    print("generate dataloader finish there is {} of size {}".format(len(train_loader),batch_size))
     model = get_instance(models, 'model', CFG)
     loss = get_instance(losses, 'loss', CFG)
     

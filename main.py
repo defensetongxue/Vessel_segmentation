@@ -15,15 +15,15 @@ if __name__ == '__main__':
                         help='the size of patch for image partition')
     parser.add_argument('--stride', default=6,
                         help='the stride of image partition')
-    parser.add_argument( '--cleansing', default=True,
+    parser.add_argument( '--cleansing', default=False,
                         help='if do the cleansing task, note that each data should to first')
     args = parser.parse_args()
 
         
-    # there is totally 5 data DRIVE CHASEDB1 CHUAC DCA1 STAGE
+    # there is totally 5 data DRIVE CHASEDB1 CHUAC DCA1 STARE
     if args.cleansing:
         if args.dataset=='all':
-            all_dataset=['DRIVE', 'CHASEDB1' ,'CHUAC', 'DCA1', 'STAGE']
+            all_dataset=['DRIVE', 'CHASEDB1' ,'CHUAC', 'DCA1', 'STARE']
             for name in all_dataset:
                 print("process and generate patches for dataset {}".format(name))
                 data_path=os.path.join('../autodl-tmp/datasets_vessel',name)
@@ -37,7 +37,6 @@ if __name__ == '__main__':
             data_process(data_path,args.dataset,args.patch_size,args.stride,"test")
 
             print("finish cleansing for {}".format(args.dataset))
-            
     with open('./config/default.yaml', encoding='utf-8') as file:
         CFG = Bunch(safe_load(file))
     train(CFG, args.dataset, args.batch_size)

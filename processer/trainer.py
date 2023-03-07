@@ -50,7 +50,6 @@ class Trainer:
             self._metrics_update(
                 *get_metrics(pre, gt, threshold=self.CFG.threshold).values())
             
-            raise
         self.lr_scheduler.step()
         print('TRAIN ({}) | Loss: {:.4f} | AUC {:.4f} F1 {:.4f} Acc {:.4f}  Sen {:.4f} Spe {:.4f} Pre {:.4f} IOU {:.4f}  |'.format(
                     epoch, self.total_loss.average, *self._metrics_ave().values()))
