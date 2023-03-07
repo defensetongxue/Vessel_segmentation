@@ -6,8 +6,7 @@ import torch.backends.cudnn as cudnn
 import torch.nn as nn
 import torchvision.transforms.functional as TF
 from loguru import logger
-from tqdm import tqdm
-from trainer import Trainer
+from .trainer import Trainer
 from utils import dir_exists, remove_files, double_threshold_iteration
 from utils import get_metrics,  count_connect_component
 

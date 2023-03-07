@@ -3,8 +3,8 @@ from bunch import Bunch
 from ruamel.yaml import safe_load
 from torch.utils.data import DataLoader
 import models
-from dataset import vessel_dataset
-from trainer import Trainer
+from utils import vessel_dataset
+from processer import Trainer
 from utils import losses,get_instance, seed_torch
 import os
 
@@ -50,6 +50,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     # there is totally 5 data DRIVE CHASEDB1 CHUAC DCA1 STAGE
     
-    with open('default.yaml', encoding='utf-8') as file:
+    with open('./config/default.yaml', encoding='utf-8') as file:
         CFG = Bunch(safe_load(file))
     main(CFG, args.dataset, args.batch_size)

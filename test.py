@@ -4,9 +4,8 @@ from bunch import Bunch
 from ruamel.yaml import safe_load
 from torch.utils.data import DataLoader
 import models
-from dataset import vessel_dataset
-from tester import Tester
-from utils import losses,get_instance
+from utils import vessel_dataset,losses,get_instance
+from processer import Tester
 
 def main(data_path, weight_path, CFG, show):
     checkpoint = torch.load(weight_path)
@@ -29,6 +28,6 @@ if __name__ == '__main__':
     parser.add_argument("--show", help="save predict image",
                         required=False, default=False, action="store_true")
     args = parser.parse_args()
-    with open("default.yaml", encoding="utf-8") as file:
+    with open("./config/default.yaml", encoding="utf-8") as file:
         CFG = Bunch(safe_load(file))
     main(args.dataset_path, args.wetght_path, CFG, args.show)

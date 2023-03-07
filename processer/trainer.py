@@ -31,8 +31,8 @@ class Trainer:
     def _train_epoch(self, epoch,train_loader):
         self.model.train()
         self._reset_metrics()
-        cnt=0
         for img, gt in train_loader:
+            raise
             img = img.cuda(non_blocking=True)
             gt = gt.cuda(non_blocking=True)
             self.optimizer.zero_grad()
