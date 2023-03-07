@@ -4,4 +4,5 @@
 ## confusion
 2023/03/07: I temporarily abandon the val_loader which means all of the data in training folder will be used in the training process
 
-2022/03/07: 
+## TODO
+2023/03/07: fix the code style of the cleasing process in main.py

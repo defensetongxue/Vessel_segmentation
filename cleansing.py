@@ -11,19 +11,7 @@ import torch.nn.functional as F
 from PIL import Image
 from ruamel.yaml import safe_load
 from torchvision.transforms import Grayscale, Normalize, ToTensor
-def dir_exists(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
-def remove_files(path):
-    for root, dirs, files in os.walk(path, topdown=False):
-        for name in files:
-            os.remove(os.path.join(root, name))
-        for name in dirs:
-            os.rmdir(os.path.join(root, name))
-
-
+from utils import  dir_exists,remove_files
 def data_process(data_path, name, patch_size, stride, mode):
     save_path = os.path.join(data_path, f"{mode}_pro")
     dir_exists(save_path)
@@ -209,8 +197,6 @@ if __name__ == '__main__':
     parser.add_argument('--stride', default=6,
                         help='the stride of image partition')
     args = parser.parse_args()
-    with open('default.yaml', encoding='utf-8') as file:
-        CFG = safe_load(file)  # 为列表类型
 
     data_process(args.dataset_path, args.dataset_name,
                  args.patch_size, args.stride, "training")

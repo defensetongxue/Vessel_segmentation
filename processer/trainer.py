@@ -23,6 +23,7 @@ class Trainer:
         cudnn.benchmark = True
 
     def train(self,train_loader):
+        print("begin training process, will train the epoch {}".format(self.CFG.epochs))
         for epoch in range(1, self.CFG.epochs + 1):
             self._train_epoch(epoch,train_loader)
             if epoch % self.CFG.save_period == 0:
@@ -32,7 +33,7 @@ class Trainer:
         self.model.train()
         self._reset_metrics()
         for img, gt in train_loader:
-            raise
+            
             img = img.cuda(non_blocking=True)
             gt = gt.cuda(non_blocking=True)
             self.optimizer.zero_grad()
@@ -48,11 +49,11 @@ class Trainer:
             
             self._metrics_update(
                 *get_metrics(pre, gt, threshold=self.CFG.threshold).values())
-            print(
-                'TRAIN ({}) | Loss: {:.4f} | AUC {:.4f} F1 {:.4f} Acc {:.4f}  Sen {:.4f} Spe {:.4f} Pre {:.4f} IOU {:.4f}  |'.format(
-                    epoch, self.total_loss.average, *self._metrics_ave().values()))
+            
+            raise
         self.lr_scheduler.step()
-
+        print('TRAIN ({}) | Loss: {:.4f} | AUC {:.4f} F1 {:.4f} Acc {:.4f}  Sen {:.4f} Spe {:.4f} Pre {:.4f} IOU {:.4f}  |'.format(
+                    epoch, self.total_loss.average, *self._metrics_ave().values()))
     def _save_checkpoint(self, epoch):
         state = {
             'arch': type(self.model).__name__,

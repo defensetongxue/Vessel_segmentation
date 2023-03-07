@@ -8,7 +8,7 @@ from processer import Trainer
 from utils import losses,get_instance, seed_torch
 import os
 
-def main(CFG, dataset, batch_size):
+def train(CFG, dataset, batch_size):
     seed_torch()
     # I have temporarily abandoned the val_loader 
     # which means all the data will be used in training
@@ -29,7 +29,7 @@ def main(CFG, dataset, batch_size):
     # generate data loader
     train_loader = DataLoader(
         train_dataset, batch_size, shuffle=True, num_workers=16, pin_memory=True, drop_last=True)
-
+    print("generate dataloader finish there is {} of size {}".format(len(train_loader,batch_size)))
     model = get_instance(models, 'model', CFG)
     loss = get_instance(losses, 'loss', CFG)
     
@@ -52,4 +52,4 @@ if __name__ == '__main__':
     
     with open('./config/default.yaml', encoding='utf-8') as file:
         CFG = Bunch(safe_load(file))
-    main(CFG, args.dataset, args.batch_size)
+    train(CFG, args.dataset, args.batch_size)
