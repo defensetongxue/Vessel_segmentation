@@ -6,44 +6,51 @@ import models
 from dataset import vessel_dataset
 from trainer import Trainer
 from utils import losses,get_instance, seed_torch
+import os
 
-
-def main(CFG, data_path, batch_size, with_val=False):
+def main(CFG, dataset, batch_size):
     seed_torch()
-    if with_val:
-        train_dataset = vessel_dataset(data_path, mode="training", split=0.9)
-        val_dataset = vessel_dataset(
-            data_path, mode="training", split=0.9, is_val=True)
-        val_loader = DataLoader(
-            val_dataset, batch_size, shuffle=False, num_workers=16, pin_memory=True, drop_last=False)
+    # I have temporarily abandoned the val_loader 
+    # which means all the data will be used in training
+    
+    #generare data 
+    train_dataset=None
+    if dataset=='all':
+        all_dataset=['DRIVE', 'CHASEDB1' ,'CHUAC', 'DCA1', 'STAGE']
+        for name in all_dataset:
+            data_path=os.path.join('./datasets',name)
+            if train_dataset is None:
+                train_dataset = vessel_dataset(data_path, mode="training")
+            else:
+                train_dataset=train_dataset+vessel_dataset(data_path, mode="training")
     else:
+        data_path=os.path.join('./datasets',dataset)
         train_dataset = vessel_dataset(data_path, mode="training")
+    # generate data loader
     train_loader = DataLoader(
         train_dataset, batch_size, shuffle=True, num_workers=16, pin_memory=True, drop_last=True)
 
     model = get_instance(models, 'model', CFG)
     loss = get_instance(losses, 'loss', CFG)
+    
     trainer = Trainer(
         model=model,
         loss=loss,
         CFG=CFG,
-        train_loader=train_loader,
-        val_loader=val_loader if with_val else None
+        train_loader=train_loader
     )
-
     trainer.train()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-dp', "./dataset/DRIVE", type=str,
-                        help='the path of dataset')
+    parser.add_argument('-dataset', "DRIVE", type=str,
+                        help='dataset used, if dataset==all, we will used all of the dataset')
     parser.add_argument('-bs', '--batch_size', default=64,
                         help='batch_size for trianing and validation')
-    parser.add_argument("--val", help="split training data for validation",
-                        required=False, default=False, action="store_true")
     args = parser.parse_args()
-
+    # there is totally 5 data DRIVE CHASEDB1 CHUAC DCA1 STAGE
+    
     with open('default.yaml', encoding='utf-8') as file:
         CFG = Bunch(safe_load(file))
-    main(CFG, args.dataset_path, args.batch_size, args.val)
+    main(CFG, args.dataset, args.batch_size)

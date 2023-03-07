@@ -1,14 +1,7 @@
 import os
-import time
-from datetime import datetime
-import cv2
 import torch
-import numpy as np
 import torch.backends.cudnn as cudnn
-import torch.nn as nn
-import torchvision.transforms.functional as TF
 from loguru import logger
-from tqdm import tqdm
 from .utils import get_instance,dir_exists,get_metrics,AverageMeter
 
 
@@ -25,25 +18,23 @@ class Trainer:
             torch.optim, "optimizer", CFG, self.model.parameters())
         self.lr_scheduler = get_instance(
             torch.optim.lr_scheduler, "lr_scheduler", CFG, self.optimizer)
-        start_time = datetime.now().strftime('%y%m%d%H%M%S')
+        
         self.checkpoint_dir = os.path.join(
-            CFG.save_dir, self.CFG['model']['type'], start_time)
+            CFG.save_dir, self.CFG['model']['type'])
         dir_exists(self.checkpoint_dir)
         cudnn.benchmark = True
 
-    def train(self,train_loader,val_loader=None):
+    def train(self,train_loader):
         for epoch in range(1, self.CFG.epochs + 1):
-            self._train_epoch(epoch)
-            if self.val_loader is not None :
-                results = self._valid_epoch(epoch)
+            self._train_epoch(epoch,train_loader)
             if epoch % self.CFG.save_period == 0:
                 self._save_checkpoint(epoch)
 
-    def _train_epoch(self, epoch):
+    def _train_epoch(self, epoch,train_loader):
         self.model.train()
         self._reset_metrics()
         cnt=0
-        for img, gt in self.train_loader:
+        for img, gt in train_loader:
             img = img.cuda(non_blocking=True)
             gt = gt.cuda(non_blocking=True)
             self.optimizer.zero_grad()
@@ -66,32 +57,6 @@ class Trainer:
             if cnt>=2:
                 raise
         self.lr_scheduler.step()
-
-    def _valid_epoch(self, epoch):
-        logger.info('\n###### EVALUATION ######')
-        self.model.eval()
-        self._reset_metrics()
-        tbar = tqdm(self.val_loader, ncols=160)
-        with torch.no_grad():
-            for img, gt in tbar:
-                img = img.cuda(non_blocking=True)
-                gt = gt.cuda(non_blocking=True)
-                with torch.cuda.amp.autocast(enabled=True):
-                    predict = self.model(img)
-                    loss = self.loss(predict, gt)
-                self.total_loss.update(loss.item())
-                self._metrics_update(
-                    *get_metrics(predict, gt, threshold=self.CFG.threshold).values())
-                tbar.set_description(
-                    'EVAL ({})  | Loss: {:.4f} | AUC {:.4f} F1 {:.4f} Acc {:.4f} Sen {:.4f} Spe {:.4f} Pre {:.4f} IOU {:.4f} |'.format(
-                        epoch, self.total_loss.average, *self._metrics_ave().values()))
-            
-                
-        log = {
-            'val_loss': self.total_loss.average,
-            **self._metrics_ave()
-        }
-        return log
 
     def _save_checkpoint(self, epoch):
         state = {
