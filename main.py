@@ -19,7 +19,8 @@ if __name__ == '__main__':
                         help='if do the cleansing task, note that each data should to first')
     args = parser.parse_args()
 
-        
+    import warnings
+    warnings.filterwarnings("ignore")    
     # there is totally 5 data DRIVE CHASEDB1 CHUAC DCA1 STARE
     if args.cleansing:
         if args.dataset=='all':
