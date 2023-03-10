@@ -11,6 +11,8 @@ def main(data_path, weight_path, CFG, show):
     checkpoint = torch.load(weight_path)
     CFG_ck = checkpoint['config']
     test_dataset = vessel_dataset(data_path, mode="test")
+    # for i in checkpoint['state_dict']:
+    #     print(i)
     test_loader = DataLoader(test_dataset, 1,
                              shuffle=False,  num_workers=16, pin_memory=True)
     model = get_instance(models, 'model', CFG)
@@ -21,12 +23,11 @@ def main(data_path, weight_path, CFG, show):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-dp", "--dataset_path", default="all", type=str,
+    parser.add_argument("-dp", "--dataset_path", default="../autodl-tmp/datasets_vessel/CHASEDB1", type=str,
                         help="the path of dataset")
-    parser.add_argument("-wp", "--wetght_path", default="pretrained_weights/DRIVE/checkpoint-epoch40.pth", type=str,
+    parser.add_argument("-wp", "--wetght_path", default="./saved/FR_UNet/checkpoint-epoch40.pth", type=str,
                         help='the path of wetght.pt')
-    parser.add_argument("--show", help="save predict image",
-                        required=False, default=False, action="store_true")
+    parser.add_argument("--show", help="save predict image", default=True, action="store_true")
     args = parser.parse_args()
     with open("./config/default.yaml", encoding="utf-8") as file:
         CFG = Bunch(safe_load(file))

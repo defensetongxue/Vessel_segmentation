@@ -1,4 +1,4 @@
-import time
+
 import cv2
 import torch
 import numpy as np
@@ -17,7 +17,7 @@ class Tester(Trainer):
         self.loss = loss
         self.CFG = CFG
         self.test_loader = test_loader
-        self.model = nn.DataParallel(model.cuda())
+        self.model = model.cuda()
         self.dataset_path = dataset_path
         self.show = show
         self.model.load_state_dict(checkpoint['state_dict'])
@@ -78,11 +78,10 @@ class Tester(Trainer):
                         self.CCC.update(count_connect_component(
                             pre, gt, threshold=self.CFG.threshold))
                 print(
-                    'TEST ({}) | Loss: {:.4f} | AUC {:.4f} F1 {:.4f} Acc {:.4f}  Sen {:.4f} Spe {:.4f} Pre {:.4f} IOU {:.4f} |B {:.2f} D {:.2f} |'.format(
-                        i, self.total_loss.average, *self._metrics_ave().values(), self.batch_time.average, self.data_time.average))
-                tic = time.time()
+                    'TEST ({}) | Loss: {:.4f} | AUC {:.4f} F1 {:.4f} Acc {:.4f}  Sen {:.4f} Spe {:.4f} Pre {:.4f} IOU {:.4f}  |'.format(
+                        i, self.total_loss.average, *self._metrics_ave().values()))
+
         logger.info(f"###### TEST EVALUATION ######")
-        logger.info(f'test time:  {self.batch_time.average}')
         logger.info(f'     loss:  {self.total_loss.average}')
         if self.CFG.CCC:
             logger.info(f'     CCC:  {self.CCC.average}')
