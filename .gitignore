@@ -3,3 +3,4 @@ saved/
 ring.py
 *.out
 save_picture
+ROP/
