@@ -182,6 +182,7 @@ def normalization(imgs_list):
     imgs = torch.cat(imgs_list, dim=0)
     mean = torch.mean(imgs)
     std = torch.std(imgs)
+    print(mean,std)
     normal_list = []
     for i in imgs_list:
         n = Normalize([mean], [std])(i)
