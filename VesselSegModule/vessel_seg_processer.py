@@ -17,8 +17,9 @@ class VesselSegProcesser():
         self.model.cuda()
 
         self.save_path = save_path
+        if not os.path.exists(save_path):
+            os.mkdir(save_path)
         self.resize = resize
-
         # generate mask
         mask=Image.open('mask.png')
         mask=transforms.Resize(self.resize)(mask)
