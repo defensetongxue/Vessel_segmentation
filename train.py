@@ -1,4 +1,4 @@
-import argparse
+from ruamel.yaml import safe_load
 from bunch import Bunch
 import yaml
 from torch.utils.data import DataLoader
@@ -21,8 +21,11 @@ def train(CFG, path_tar,dataset, batch_size):
             data_path=os.path.join(path_tar,name)
             if train_dataset is None:
                 train_dataset = vessel_dataset(data_path)
+                print(f"load {len(train_dataset)} from {name}")
             else:
-                train_dataset=train_dataset+vessel_dataset(data_path)
+                new_dataset=vessel_dataset(data_path)
+                train_dataset=train_dataset+new_dataset
+                print(f"load {len(new_dataset)} from {name}")
     else:
         data_path=os.path.join(path_tar,dataset)
         train_dataset = vessel_dataset(data_path)
@@ -44,6 +47,8 @@ def train(CFG, path_tar,dataset, batch_size):
 if __name__ == '__main__':
     from config import get_config
     args=get_config()
+    import warnings
+    warnings.filterwarnings("ignore")
     with open('./config/default.yaml', encoding='utf-8') as file:
-        CFG = Bunch(yaml.load(file))
+        CFG = Bunch(safe_load(file))
     train(CFG, args.path_tar,args.dataset, args.batch_size)

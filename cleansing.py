@@ -88,8 +88,8 @@ def data_process(data_path, name, patch_size, stride,save_path ):
     
     img_patch = get_patch(img_list, patch_size, stride)
     gt_patch = get_patch(gt_list, patch_size, stride)
-    save_patch(img_patch, save_path, "img_patch", name)
-    save_patch(gt_patch, save_path, "gt_patch", name)
+    save_patch(img_patch, save_path, "img_patch")
+    save_patch(gt_patch, save_path, "gt_patch")
 
 
 def get_square(img_list, name):
@@ -158,8 +158,10 @@ def normalization(imgs_list):
 if __name__ == '__main__':
     from config import get_config
     args=get_config()
+    os.makedirs(args.path_tar,exist_ok=True)
     for name in ['DRIVE','CHASEDB1','STARE','CHUAC','DCA1']:
         data_path=os.path.join(args.path_src,name)
         save_path=os.path.join(args.path_tar,name)
-        data_process(data_path, args.dataset_name,
-                 args.patch_size, args.stride, save_dict=save_path)
+        data_process(data_path,
+                      name,
+                 args.patch_size, args.stride, save_path=save_path)
