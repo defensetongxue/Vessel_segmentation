@@ -7,19 +7,11 @@ from utils import Fix_RandomRotation
 
 
 class vessel_dataset(Dataset):
-    def __init__(self, path, mode, is_val=False, split=None):
+    def __init__(self, data_path):
 
-        self.mode = mode
-        self.is_val = is_val
-        self.data_path = os.path.join(path, f"{mode}_pro")
+        self.data_path = os.path.join(data_path)
         self.data_file = os.listdir(self.data_path)
         self.img_file = self._select_img(self.data_file)
-        if split is not None and mode == "training":
-            assert split > 0 and split < 1
-            if not is_val:
-                self.img_file = self.img_file[:int(split*len(self.img_file))]
-            else:
-                self.img_file = self.img_file[int(split*len(self.img_file)):]
         self.transforms = Compose([
             RandomHorizontalFlip(p=0.5),
             RandomVerticalFlip(p=0.5),
@@ -34,12 +26,12 @@ class vessel_dataset(Dataset):
         with open(file=os.path.join(self.data_path, gt_file), mode='rb') as file:
             gt = torch.from_numpy(pickle.load(file)).float()
 
-        if self.mode == "training" and not self.is_val:
-            seed = torch.seed()
-            torch.manual_seed(seed)
-            img = self.transforms(img)
-            torch.manual_seed(seed)
-            gt = self.transforms(gt)
+        
+        seed = torch.seed()
+        torch.manual_seed(seed)
+        img = self.transforms(img)
+        torch.manual_seed(seed)
+        gt = self.transforms(gt)
 
         return img, gt
 
@@ -78,4 +70,4 @@ class ROP_dataset(Dataset):
         return img_list
 
     def __len__(self):
-        return len(self.img_file)
+        return len(self.img_file) 

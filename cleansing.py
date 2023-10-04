@@ -1,5 +1,3 @@
-# this file is load the orignal dataset and cleansing the data\
-# copy from https://github.com/lseventeen/FR-UNet/blob/master/data_process.py thanks
 import os
 import argparse
 import pickle
@@ -9,16 +7,15 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 from PIL import Image
-from ruamel.yaml import safe_load
 from torchvision.transforms import Grayscale, Normalize, ToTensor
 from utils import  dir_exists,remove_files
-def data_process(data_path, name, patch_size, stride, mode):
-    save_path = os.path.join(data_path, f"{mode}_pro")
+def data_process(data_path, name, patch_size, stride,save_path ):
+    
     dir_exists(save_path)
     remove_files(save_path)
     if name == "DRIVE":
-        img_path = os.path.join(data_path, mode, "images")
-        gt_path = os.path.join(data_path, mode, "1st_manual")
+        img_path = os.path.join(data_path, 'train', "images")
+        gt_path = os.path.join(data_path, 'train', "1st_manual")
         file_list = list(sorted(os.listdir(img_path)))
     elif name == "CHASEDB1":
         file_list = list(sorted(os.listdir(data_path)))
@@ -45,65 +42,39 @@ def data_process(data_path, name, patch_size, stride, mode):
 
         elif name == "CHASEDB1":
             if len(file) == 13:
-                if mode == "training" and int(file[6:8]) <= 10:
-                    img = Image.open(os.path.join(data_path, file))
-                    gt = Image.open(os.path.join(
-                        data_path, file[0:9] + '_1stHO.png'))
-                    img = Grayscale(1)(img)
-                    img_list.append(ToTensor()(img))
-                    gt_list.append(ToTensor()(gt))
-                elif mode == "test" and int(file[6:8]) > 10:
-                    img = Image.open(os.path.join(data_path, file))
-                    gt = Image.open(os.path.join(
-                        data_path, file[0:9] + '_1stHO.png'))
-                    img = Grayscale(1)(img)
-                    img_list.append(ToTensor()(img))
-                    gt_list.append(ToTensor()(gt))
+                img = Image.open(os.path.join(data_path, file))
+                gt = Image.open(os.path.join(
+                    data_path, file[0:9] + '_1stHO.png'))
+                img = Grayscale(1)(img)
+                img_list.append(ToTensor()(img))
+                gt_list.append(ToTensor()(gt))
+                
         elif name == "DCA1":
             if len(file) <= 7:
             # the groundtruth file names "<>_gt.pgm">7
-                if mode == "training" and int(file[:-4]) <= 100:
-                    # this dataset has 137 dataset we use :100 for training
-                    img = cv2.imread(os.path.join(data_path, file), 0)
-                    gt = cv2.imread(os.path.join(
-                        data_path, file[:-4] + '_gt.pgm'), 0)
-                    gt = np.where(gt >= 100, 255, 0).astype(np.uint8)
-                    img_list.append(ToTensor()(img))
-                    gt_list.append(ToTensor()(gt))
-                elif mode == "test" and int(file[:-4]) > 100:
-                    img = cv2.imread(os.path.join(data_path, file), 0)
-                    gt = cv2.imread(os.path.join(
-                        data_path, file[:-4] + '_gt.pgm'), 0)
-                    gt = np.where(gt >= 100, 255, 0).astype(np.uint8)
-                    img_list.append(ToTensor()(img))
-                    gt_list.append(ToTensor()(gt))
+                # this dataset has 137 dataset we use :100 for training
+                img = cv2.imread(os.path.join(data_path, file), 0)
+                gt = cv2.imread(os.path.join(
+                    data_path, file[:-4] + '_gt.pgm'), 0)
+                gt = np.where(gt >= 100, 255, 0).astype(np.uint8)
+                img_list.append(ToTensor()(img))
+                gt_list.append(ToTensor()(gt))
         elif name == "CHUAC":
-            if mode == "training" and int(file[:-4]) <= 20:
-                img = cv2.imread(os.path.join(img_path, file), 0)
-                if int(file[:-4]) <= 17 and int(file[:-4]) >= 11:
-                    tail = "PNG"
-                else:
-                    tail = "png"
-                gt = cv2.imread(os.path.join(
-                    gt_path, "angio"+file[:-4] + "ok."+tail), 0)
-                gt = np.where(gt >= 100, 255, 0).astype(np.uint8)
-                img = cv2.resize(
-                    img, (512, 512), interpolation=cv2.INTER_LINEAR)
-                cv2.imwrite(f"save_picture/{i}img.png", img)
-                cv2.imwrite(f"save_picture/{i}gt.png", gt)
-                img_list.append(ToTensor()(img))
-                gt_list.append(ToTensor()(gt))
-            elif mode == "test" and int(file[:-4]) > 20:
-                img = cv2.imread(os.path.join(img_path, file), 0)
-                gt = cv2.imread(os.path.join(
-                    gt_path, "angio"+file[:-4] + "ok.png"), 0)
-                gt = np.where(gt >= 100, 255, 0).astype(np.uint8)
-                img = cv2.resize(
-                    img, (512, 512), interpolation=cv2.INTER_LINEAR)
-                cv2.imwrite(f"save_picture/{i}img.png", img)
-                cv2.imwrite(f"save_picture/{i}gt.png", gt)
-                img_list.append(ToTensor()(img))
-                gt_list.append(ToTensor()(gt))
+            
+            img = cv2.imread(os.path.join(img_path, file), 0)
+            if int(file[:-4]) <= 17 and int(file[:-4]) >= 11:
+                tail = "PNG"
+            else:
+                tail = "png"
+            gt = cv2.imread(os.path.join(
+                gt_path, "angio"+file[:-4] + "ok."+tail), 0)
+            gt = np.where(gt >= 100, 255, 0).astype(np.uint8)
+            img = cv2.resize(
+                img, (512, 512), interpolation=cv2.INTER_LINEAR)
+            cv2.imwrite(f"save_picture/{i}img.png", img)
+            cv2.imwrite(f"save_picture/{i}gt.png", gt)
+            img_list.append(ToTensor()(img))
+            gt_list.append(ToTensor()(gt))
         elif name == "STARE":
             if not file.endswith("gz"):
                 img = Image.open(os.path.join(img_path, file))
@@ -114,18 +85,11 @@ def data_process(data_path, name, patch_size, stride, mode):
                 img_list.append(ToTensor()(img))
                 gt_list.append(ToTensor()(gt))
     img_list = normalization(img_list)
-    if mode == "training":
-        img_patch = get_patch(img_list, patch_size, stride)
-        gt_patch = get_patch(gt_list, patch_size, stride)
-        save_patch(img_patch, save_path, "img_patch", name)
-        save_patch(gt_patch, save_path, "gt_patch", name)
-    elif mode == "test":
-        if name != "CHUAC":
-            img_list = get_square(img_list, name)
-            gt_list = get_square(gt_list, name)
-
-        save_each_image(img_list, save_path, "img", name)
-        save_each_image(gt_list, save_path, "gt", name)
+    
+    img_patch = get_patch(img_list, patch_size, stride)
+    gt_patch = get_patch(gt_list, patch_size, stride)
+    save_patch(img_patch, save_path, "img_patch", name)
+    save_patch(gt_patch, save_path, "gt_patch", name)
 
 
 def get_square(img_list, name):
@@ -164,7 +128,7 @@ def get_patch(imgs_list, patch_size, stride):
     return image_list
 
 
-def save_patch(imgs_list, path, type, name):
+def save_patch(imgs_list, path, type):
     for i, sub in enumerate(imgs_list):
         with open(file=os.path.join(path, f'{type}_{i}.pkl'), mode='wb') as file:
             pickle.dump(np.array(sub), file)
@@ -192,18 +156,10 @@ def normalization(imgs_list):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset_path', default="datasets/DRIVE", type=str,
-                        help='the path of dataset')
-    parser.add_argument( '--dataset_name', default="DRIVE", type=str,
-                        help='the name of dataset',choices=['DRIVE','CHASEDB1','STARE','CHUAC','DCA1'])
-    parser.add_argument( '--patch_size', default=48,
-                        help='the size of patch for image partition')
-    parser.add_argument('--stride', default=6,
-                        help='the stride of image partition')
-    args = parser.parse_args()
-
-    data_process(args.dataset_path, args.dataset_name,
-                 args.patch_size, args.stride, "training")
-    data_process(args.dataset_path, args.dataset_name,
-                 args.patch_size, args.stride, "test")
+    from config import get_config
+    args=get_config()
+    for name in ['DRIVE','CHASEDB1','STARE','CHUAC','DCA1']:
+        data_path=os.path.join(args.path_src,name)
+        save_path=os.path.join(args.path_tar,name)
+        data_process(data_path, args.dataset_name,
+                 args.patch_size, args.stride, save_dict=save_path)
