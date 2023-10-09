@@ -39,6 +39,8 @@ def train(CFG, path_tar, batch_size):
 
 if __name__ == '__main__':
     from config import get_config
+    import warnings
+    warnings.filterwarnings("ignore")
     args=get_config()
     with open('./config/finetone.yaml', encoding='utf-8') as file:
         CFG = Bunch(safe_load(file))
