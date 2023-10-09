@@ -94,8 +94,12 @@ def data_process(data_path, name, patch_size, stride,save_path ):
             img = Grayscale(1)(img)
             img_list.append(ToTensor()(img))
             gt_list.append(ToTensor()(gt))
-
-    img_list = normalization(img_list)
+    if name =='finetone':
+        mask = Image.open('./mask.png')
+        mask = ToTensor()(mask)
+        img_list = normalization(img_list,mask)
+    else:
+        img_list = normalization(img_list)
     
     img_patch = get_patch(img_list, patch_size, stride)
     gt_patch = get_patch(gt_list, patch_size, stride)
@@ -153,16 +157,29 @@ def save_each_image(imgs_list, path, type, name):
             # print(f'save {name} {type} : {type}_{i}.pkl')
 
 
-def normalization(imgs_list):
+def normalization(imgs_list,mask=None):
     imgs = torch.cat(imgs_list, dim=0)
     mean = torch.mean(imgs)
     std = torch.std(imgs)
     print(mean,std)
+    
     normal_list = []
-    for i in imgs_list:
-        n = Normalize([mean], [std])(i)
-        n = (n - torch.min(n)) / (torch.max(n) - torch.min(n))
-        normal_list.append(n)
+    if mask is not None:
+        for i in imgs_list:
+            n = Normalize([mean], [std])(i)
+            masked_values = n[mask > 0]
+            # Compute the min and max values from the masked tensor
+            min_val = torch.min(masked_values)
+            max_val = torch.max(masked_values)
+
+            # Normalize the image tensor using these min and max values
+            normalized_n = (n - min_val) / (max_val - min_val)
+            normal_list.append(normalized_n)
+    else:
+        for i in imgs_list:
+            n = Normalize([mean], [std])(i)
+            n = (n - torch.min(n)) / (torch.max(n) - torch.min(n))
+            normal_list.append(n)
     return normal_list
 
 
@@ -170,13 +187,13 @@ if __name__ == '__main__':
     from config import get_config
     args=get_config()
     os.makedirs(args.path_tar,exist_ok=True)
-    for name in ['DRIVE','CHASEDB1','STARE','CHUAC','DCA1']:
-        data_path=os.path.join(args.path_src,name)
-        save_path=os.path.join(args.path_tar,name)
-        data_process(data_path, args.name,
-                 args.patch_size, args.stride, save_dict=save_path)
+    # for name in ['DRIVE','CHASEDB1','STARE','CHUAC','DCA1']:
+    #     data_path=os.path.join(args.path_src,name)
+    #     save_path=os.path.join(args.path_tar,name)
+    #     data_process(data_path, args.name,
+    #              args.patch_size, args.stride, save_path=save_path)
         
     data_path=os.path.join(args.path_src,'finetone')
     save_path=os.path.join(args.path_tar,'finetone')
     data_process(data_path, 'finetone',
-                 args.patch_size, args.stride, save_dict=save_path)
+                 args.patch_size, args.stride, save_path=save_path)

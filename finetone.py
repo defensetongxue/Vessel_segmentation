@@ -1,6 +1,6 @@
-import argparse
+import torch
 from bunch import Bunch
-import yaml
+from ruamel.yaml import safe_load
 from torch.utils.data import DataLoader
 import models
 from utils import vessel_dataset
@@ -23,6 +23,10 @@ def train(CFG, path_tar, batch_size):
         train_dataset, batch_size, shuffle=True, num_workers=16)
     print("generate dataloader finish there is {} of size {}".format(len(train_loader),batch_size))
     model = get_instance(models, 'model', CFG)
+    checkpoint = torch.load(
+            os.path.join('pretrained/vessel_seg.pth'))
+    loaded_state_dict = checkpoint['state_dict']
+    model.load_state_dict(loaded_state_dict)
     loss = get_instance(losses, 'loss', CFG)
     
     trainer = FineToner(
@@ -37,5 +41,5 @@ if __name__ == '__main__':
     from config import get_config
     args=get_config()
     with open('./config/finetone.yaml', encoding='utf-8') as file:
-        CFG = Bunch(yaml.load(file))
-    train(CFG, args.path_tar,args.dataset, args.batch_size)
+        CFG = Bunch(safe_load(file))
+    train(CFG, args.path_tar,args.batch_size)

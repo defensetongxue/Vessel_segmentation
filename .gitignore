@@ -5,3 +5,5 @@ ring.py
 save_picture
 ROP/
 ROP_pro\
+tmp.py
+*.pth
