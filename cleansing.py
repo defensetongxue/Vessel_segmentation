@@ -30,6 +30,10 @@ def data_process(data_path, name, patch_size, stride,save_path ):
         img_path = os.path.join(data_path, "Original")
         gt_path = os.path.join(data_path, "Photoshop")
         file_list = list(sorted(os.listdir(img_path)))
+    elif name=='finetone':
+        img_path=os.path.join(data_path,'image')
+        gt_path=os.path.join(data_path,'mask')
+        file_list = list(sorted(os.listdir(img_path)))      
     img_list = []
     gt_list = []
     for i, file in enumerate(file_list):
@@ -84,6 +88,13 @@ def data_process(data_path, name, patch_size, stride,save_path ):
                 img = Grayscale(1)(img)
                 img_list.append(ToTensor()(img))
                 gt_list.append(ToTensor()(gt))
+        elif name=='finetone':
+            img = Image.open(os.path.join(img_path, file))
+            gt = Image.open(os.path.join(gt_path, file.split('.')[0]+'.png'))
+            img = Grayscale(1)(img)
+            img_list.append(ToTensor()(img))
+            gt_list.append(ToTensor()(gt))
+
     img_list = normalization(img_list)
     
     img_patch = get_patch(img_list, patch_size, stride)
@@ -162,6 +173,10 @@ if __name__ == '__main__':
     for name in ['DRIVE','CHASEDB1','STARE','CHUAC','DCA1']:
         data_path=os.path.join(args.path_src,name)
         save_path=os.path.join(args.path_tar,name)
-        data_process(data_path,
-                      name,
-                 args.patch_size, args.stride, save_path=save_path)
+        data_process(data_path, args.name,
+                 args.patch_size, args.stride, save_dict=save_path)
+        
+    data_path=os.path.join(args.path_src,'finetone')
+    save_path=os.path.join(args.path_tar,'finetone')
+    data_process(data_path, 'finetone',
+                 args.patch_size, args.stride, save_dict=save_path)
