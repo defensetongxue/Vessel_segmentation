@@ -1,2 +1,2 @@
-python -u train.py 
+python -u finetone.py
 python ring.py
